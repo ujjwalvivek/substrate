@@ -133,6 +133,9 @@ const views = {
                 <button class="fps-btn${systemState.fps === 30 ? ' active' : ''}" data-fps="30">30 FPS</button>
                 <button class="fps-btn${systemState.fps === 60 ? ' active' : ''}" data-fps="60">60 FPS</button>
             </div>
+            <hr class="panel-divider">
+            <div class="panel-header">> UNRELATED TO WALLPAPER_</div>
+            <div id="global-clicker-mount"></div>
         </div>
         </div>
     `,
@@ -212,6 +215,7 @@ function bindEvents() {
             }
         });
     }
+    initClicker(document.getElementById('global-clicker-mount'));
     bindGenerator(canvas, palette, systemState);
     bindSlider('speed-slider', 'speed-val', 'speed');
     bindSlider('density-slider', 'density-val', 'density');
@@ -264,4 +268,59 @@ window.addEventListener('state:update', (e) => {
         if (genBtn) genBtn.innerText = `GENERATED: ${e.detail.value}`;
     }
 });
+function initClicker(mountNode) {
+    if (!mountNode) return;
+    mountNode.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 0.5rem;">
+            <button class="action-btn" id="globalClickBtn" style="width: 100%; transition: transform 0.1s ease;">
+                <div id="globalClickScore" style="font-size: 1.5rem; font-weight: bold; color: var(--accent); margin-bottom: 0.75rem; font-family: monospace; letter-spacing: 0.05em; text-shadow: 0 0 10px var(--accent);">...</div>CLICK ME!
+            </button>
+        </div>
+    `;
+
+    const API_BASE = 'https://echopoint.ujjwalvivek.com';
+    const scoreEl = mountNode.querySelector('#globalClickScore');
+    const btnEl = mountNode.querySelector('#globalClickBtn');
+    let pendingClicks = 0;
+    const wsUrl = 'wss://echopoint.ujjwalvivek.com/v1/click';
+    if (!window.epClickerSocket) {
+        try {
+            window.epClickerSocket = new WebSocket(wsUrl);
+            window.epClickerSocket.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                if (data.global !== undefined) {
+                    window.epGlobalScore = data.global;
+                    const curScoreEl = document.getElementById('globalClickScore');
+                    if (curScoreEl) curScoreEl.innerText = data.global.toLocaleString();
+                }
+            };
+        } catch (err) {
+            console.error('WS fail:', err);
+        }
+    } else {
+        if (window.epGlobalScore !== undefined && scoreEl) {
+            scoreEl.innerText = window.epGlobalScore.toLocaleString();
+        }
+    }
+    btnEl.addEventListener('click', () => {
+        pendingClicks++;
+        const current = parseInt(scoreEl.innerText.replace(/,/g, ''), 10) || 0;
+        scoreEl.innerText = (current + 1).toLocaleString();
+        btnEl.style.transform = 'scale(0.97)';
+        setTimeout(() => btnEl.style.transform = '', 100);
+        clearTimeout(btnEl.flushTimer);
+        btnEl.flushTimer = setTimeout(() => {
+            if (window.epClickerSocket && window.epClickerSocket.readyState === WebSocket.OPEN) {
+                window.epClickerSocket.send(JSON.stringify({ type: 'click', count: pendingClicks }));
+            } else {
+                fetch(`${API_BASE}/v1/click`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count: pendingClicks })
+                });
+            }
+            pendingClicks = 0;
+        }, 300);
+    });
+}
 bindEvents();
