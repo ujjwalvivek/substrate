@@ -464,7 +464,7 @@ input[type=range]::-moz-range-thumb {
     -webkit-backdrop-filter: blur(32px);
     box-sizing: border-box;
     line-height: 1.7;
-    margin-bottom: 2rem;
+    margin-bottom: 5rem;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
@@ -502,6 +502,7 @@ input[type=range]::-moz-range-thumb {
         width: 100%;
         margin-top: 2rem;
         padding: 1.2rem;
+        margin-bottom: 4rem;
     }
 
     .docs-container {
