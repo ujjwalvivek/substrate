@@ -4,6 +4,8 @@
 ![Echopoint SVG](https://echopoint.ujjwalvivek.com/svg/badges/custom?leftText=Procedural&badgeColor=ff8040&rightText=Generation)
 ![Echopoint SVG](https://echopoint.ujjwalvivek.com/svg/badges/custom?leftText=Engine%20Size&badgeColor=ff0080&rightText=11.3%20kB)
 
+![Cover](cover.png)
+
 Substrate is a tiny (~1000 LOC) vanilla JS procedural wallpaper engine. This repo is the frontend where you can visually tweak the engine's primitives (density, speed, themes, etc.) in real-time.
 
 ### Local Setup

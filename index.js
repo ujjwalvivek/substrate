@@ -104,6 +104,7 @@ const views = {
         <p>A Lightweight, No-Dependency JavaScript Engine for Composing Dynamic, Procedural Background Animations.</p>
         <div class="control-panel">
             <div class="panel-header">> PREVIEW_</div>
+            <button id="capture-btn" class="action-btn" style="width:100%; margin-bottom: 0.75rem;">CAPTURE FRAME</button>
             <button id="generate-btn" class="action-btn" style="width:100%; margin-bottom: 0.75rem;">GENERATE: ${store.clicks}</button>
             <div id="recipe-display" style="font-family: monospace; font-size: 0.7rem; opacity: 0.6; text-align: center; letter-spacing: 0.05em;margin-bottom: 0.75rem;"></div>
             <hr class="panel-divider">
@@ -199,6 +200,18 @@ document.body.addEventListener('click', (e) => { if (e.target.matches('[data-lin
 function bindEvents() {
     const genBtn = document.getElementById('generate-btn');
     if (genBtn) { genBtn.addEventListener('click', () => { store.clicks += 1; }); }
+    const capBtn = document.getElementById('capture-btn');
+    if (capBtn) {
+        capBtn.addEventListener('click', () => {
+            const canvas = document.getElementById('prism-canvas');
+            if (canvas) {
+                const a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                a.download = 'substrate_cover.png';
+                a.click();
+            }
+        });
+    }
     bindGenerator(canvas, palette, systemState);
     bindSlider('speed-slider', 'speed-val', 'speed');
     bindSlider('density-slider', 'density-val', 'density');
