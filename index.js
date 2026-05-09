@@ -20,7 +20,8 @@ const psychedelicScene = compose([
     { fn: primitives.particles, options: { minRadius: 150, maxRadius: 700, } },
     { fn: primitives.vignette, options: { innerRadius: 0.3, outerRadius: 1.0, } }
 ]);
-const systemState = { speed: 0.1, density: 1.8, opacity: 1.0, fps: theme.fps };
+const isMobile = window.innerWidth < 768;
+const systemState = { speed: isMobile ? 0.1 : 0.1, density: isMobile ? 0.7 : 1.8, opacity: isMobile ? 1.0 : 1.0, fps: theme.fps };
 document.body.innerHTML = `
     <canvas id="prism-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;"></canvas>
     <nav class="navbar">
@@ -178,8 +179,8 @@ const views = {
             }
         }, 0);
         return `
-        <div style="flex: 1; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; width: 100%; height: 100%; padding: 2rem; box-sizing: border-box; z-index: 10;">
-            <div id="docs-content" class="markdown-body" style="width: 100%; max-width: 1200px; text-align: left; background: rgba(var(--bg-rgb), 0.3); padding: 2rem; border-radius: 2px; border: 1px solid var(--accent, rgba(255,255,255,0.5ś)); backdrop-filter: blur(32px); box-sizing: border-box; line-height: 1.7; margin-bottom: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <div class="docs-container">
+            <div id="docs-content" class="markdown-body docs-content-wrapper">
                 <div style="text-align: center; opacity: 0.5;">[ FETCHING_DOCUMENTATION... ]</div>
             </div>
         </div>
