@@ -329,3 +329,24 @@ function initClicker(mountNode) {
     });
 }
 bindEvents();
+
+(function() {
+    const CHECK_INTERVAL = 100;
+    let lastCheck = 0;
+    async function checkReload() {
+        if (Date.now() - lastCheck < CHECK_INTERVAL) return;
+        lastCheck = Date.now();
+        try {
+            const res = await fetch('/api/check', { cache: 'no-store' });
+            const data = await res.json();
+            if (data.reload) {
+                console.log('Reloading page...');
+                location.reload();
+            }
+        } catch (e) {}
+    }
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        setInterval(checkReload, CHECK_INTERVAL);
+        console.log('Hot-reload enabled');
+    }
+})();
