@@ -127,7 +127,7 @@ const views = {
                 <input type="range" id="opacity-slider" min="0" max="1" step="0.05" value="0.8">
             </div>
             <hr class="panel-divider">
-            <div class="panel-header">> THEME_SELECT_</div>
+            <div class="panel-header">> THEMES_</div>
             <div class="theme-grid" id="theme-grid">
                 ${buildSwatches()}
             </div>
