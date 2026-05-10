@@ -459,7 +459,7 @@ input[type=range]::-moz-range-thumb {
     background: var(--bg-panel);
     padding: 2rem;
     border-radius: 2px;
-    border: 1px solid var(--border-solid);
+    border: 1px solid var(--accent);
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
     box-sizing: border-box;

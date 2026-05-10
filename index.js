@@ -48,13 +48,13 @@ function buildSwatches() {
     }).join('');
 }
 function highlightJS(code) {
-    const keywords = '(const|let|var|function|return|import|from|if|else|for|while|new)';
-    const pattern = /('(?:\\'|[^'])*'|"(?:\\"|[^"])*"|`[\s\S]*?`|\/\/.*?(?=\n|$)|\b\d+(?:\.\d+)?\b|\b(const|let|var|function|return|import|from|if|else|for|while|new)\b)/g;
+    const pattern = /('(?:\\'|[^'])*'|"(?:\\"|[^"])*"|`[\s\S]*?`|\/\/.*?(?=\n|$)|\b\d+(?:\.\d+)?\b|\b(const|let|var|function|return|import|from|if|else|for|while|new|document|console)\b|\b(fn|options|spacing|opacity|density|primary|secondary|accent|background|speed|fps)\b)/g;
     code = code.replace(pattern, (match) => {
-        if (match.startsWith("'") || match.startsWith('"') || match.startsWith('`')) { return `<span style="color: var(--dynamic-theme-secondary)">${match}</span>`;
+        if (match.startsWith("'") || match.startsWith('"') || match.startsWith('`')) { return `<span style="color: var(--dynamic-theme-secondary)${/\.js['"`]?$/.test(match) ? '; text-decoration: underline;' : ''}">${match}</span>`;
         } else if (match.startsWith('//')) { return `<span style="color: var(--fg-muted)">${match}</span>`;
         } else if (/^\d+(\.\d+)?$/.test(match)) { return `<span style="color: var(--accent)">${match}</span>`;
-        } else if (/^(const|let|var|function|return|import|from|if|else|for|while|new)$/.test(match)) { return `<span style="color: var(--dynamic-theme-primary)">${match}</span>`;
+        } else if (/^(const|let|var|function|return|import|from|if|else|for|while|new|document|console)$/.test(match)) { return `<span style="color: var(--dynamic-theme-primary)">${match}</span>`;
+        } else if (/^(fn|options|spacing|opacity|density|primary|secondary|accent|background|speed|fps)$/.test(match)) { return `<span style="color: var(--dynamic-rgb-average)">${match}</span>`;
         } return match;
     });
     return code;
