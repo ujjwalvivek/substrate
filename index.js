@@ -48,10 +48,15 @@ function buildSwatches() {
     }).join('');
 }
 function highlightJS(code) {
-    code = code.replace(/('.*?'|".*?"|`[\s\S]*?`)/g, '<span style="color: var(--dynamic-theme-secondary)">$1</span>');
-    code = code.replace(/\b(const|let|var|function|return|import|from|if|else|for|while|new)\b/g, '<span style="color: var(--dynamic-theme-primary)">$1</span>');
-    code = code.replace(/\b(\d+(\.\d+)?)\b/g, '<span style="color: var(--accent)">$1</span>');
-    code = code.replace(/(\/\/.*)/g, '<span style="color: var(--fg-muted)">$1</span>');
+    const keywords = '(const|let|var|function|return|import|from|if|else|for|while|new)';
+    const pattern = /('(?:\\'|[^'])*'|"(?:\\"|[^"])*"|`[\s\S]*?`|\/\/.*?(?=\n|$)|\b\d+(?:\.\d+)?\b|\b(const|let|var|function|return|import|from|if|else|for|while|new)\b)/g;
+    code = code.replace(pattern, (match) => {
+        if (match.startsWith("'") || match.startsWith('"') || match.startsWith('`')) { return `<span style="color: var(--dynamic-theme-secondary)">${match}</span>`;
+        } else if (match.startsWith('//')) { return `<span style="color: var(--fg-muted)">${match}</span>`;
+        } else if (/^\d+(\.\d+)?$/.test(match)) { return `<span style="color: var(--accent)">${match}</span>`;
+        } else if (/^(const|let|var|function|return|import|from|if|else|for|while|new)$/.test(match)) { return `<span style="color: var(--dynamic-theme-primary)">${match}</span>`;
+        } return match;
+    });
     return code;
 }
 function parseMarkdown(md) {
