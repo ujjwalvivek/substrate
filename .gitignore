@@ -1,1 +1,7 @@
-cdn-deploy/
+node_modules/
+dist/
+**/target/
+**/Cargo.lock
+*-lock.json
+cdn-deploy/.env
+v1/

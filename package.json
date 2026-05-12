@@ -1,0 +1,24 @@
+{
+  "name": "substrate-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "dev": "npm run build:engine && npm run dev --workspace substrate-playground --",
+    "build": "npm run build:engine && npm run build:playground && npm run stage:playground",
+    "build:engine": "npm run build --workspace @ujjwalvivek/substrate",
+    "build:playground": "npm run build --workspace substrate-playground",
+    "stage:playground": "node tools/playground/scripts/stage-playground.mjs",
+    "preview": "npm run preview --workspace substrate-playground --",
+    "validate:wgsl": "cargo run --manifest-path tools/wgsl-validator/Cargo.toml -- --root packages/substrate/src/shaders/primitives --shared packages/substrate/src/shaders/common.wgsl --feedback-bindings",
+    "validate": "npm run validate:wgsl",
+    "pack:check": "npm run build && npm pack --dry-run --workspace @ujjwalvivek/substrate"
+  },
+  "devDependencies": {
+    "@wasm-fmt/wgslfmt": "0.1.0"
+  }
+}

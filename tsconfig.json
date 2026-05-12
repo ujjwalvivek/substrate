@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "strict": true,
+    "noEmit": true
+  },
+  "include": [
+    "packages/*/src",
+    "tools/*/src",
+    "packages/*/*.js",
+    "tools/*/*.js",
+    "tools/playground/scripts/*.mjs",
+    "tools/wgsl-validator/*.mjs"
+  ]
+}
