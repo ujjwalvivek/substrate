@@ -70,6 +70,7 @@ body {
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
     gap: 1.5rem;
+    background: var(--bg-panel);
 }
 
 .navbar .logo {
@@ -140,7 +141,7 @@ body {
     color: var(--fg-muted);
     text-decoration: none;
     border-bottom: 1px solid var(--border);
-    background: var(--bg-panel);
+    background: rgba(var(--accent-rgb), 0.05);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     transition: color 0.2s ease;
