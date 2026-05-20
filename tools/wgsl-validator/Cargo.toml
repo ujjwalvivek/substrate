@@ -1,0 +1,8 @@
+[package]
+name = "substrate-validator"
+version = "1.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+naga = { version = "27.0.3", features = ["wgsl-in"] }
