@@ -1,0 +1,24 @@
+{
+  "languages": {
+    "Rust": {
+      "formatter": "language_server"
+    },
+    "WGSL/WESL": {
+      "enable_language_server": false,
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "node",
+          "arguments": ["./tools/wgsl-validator/wgsl-format.mjs", "--stdin"]
+        }
+      }
+    }
+  },
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "linkedProjects": ["./tools/wgsl-validator/Cargo.toml"]
+      }
+    }
+  }
+}
