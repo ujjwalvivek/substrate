@@ -1,24 +1,39 @@
-# Substrate Playground
+# Substrate
 
-![Echopoint SVG](https://echopoint.ujjwalvivek.com/svg/badges/custom?leftText=Javascript&badgeColor=0080ff)
-![Echopoint SVG](https://echopoint.ujjwalvivek.com/svg/badges/custom?leftText=Procedural&badgeColor=ff8040&rightText=Generation)
-![Echopoint SVG](https://echopoint.ujjwalvivek.com/svg/badges/custom?leftText=Engine%20Size&badgeColor=ff0080&rightText=11.3%20kB)
+Substrate is a composable procedural graphics engine. The GPU runtime renders WGSL primitives through WebGPU; the CPU runtime provides a Canvas2D reference implementation for comparison and fallback rendering.
 
-![Cover](media/substrate.gif)
+## Commands
 
-Substrate is a tiny (~1000 LOC) vanilla JS procedural wallpaper engine. This repo is the frontend where you can visually tweak the engine's primitives (density, speed, themes, etc.) in real-time.
-
-### Local Setup
-
-Just serve the folder:
 ```bash
-python -m http.server 8080
+npm install
+npm run dev             # builds the package, then serves the playground on :4321
+npm run build           # builds the package, playground, and stages the playground
+npm run validate        # validates all primitive WGSL files
+npm run pack:check      # shows exactly what the npm package would contain
 ```
 
-### Engine Usage
-If you just want to *use* the engine in your own project, you don't need this repo. Just pull it from the CDN:
-```javascript
-import { loop, compose, primitives } from 'https://cdn.ujjwalvivek.com/scripts/substrate/latest/main.js';
+## Package API
+
+The GPU engine is the package root:
+
+```js
+import {
+  SubstrateGPU,
+  compose,
+  primitives,
+  shaderDescriptors,
+} from "@ujjwalvivek/substrate";
 ```
 
-Read the full engine documentation [here](https://cdn.ujjwalvivek.com/scripts/substrate/latest/readme.md).
+The Canvas2D reference engine and supporting modules use explicit subpaths:
+
+```js
+import * as CPU from "@ujjwalvivek/substrate/cpu";
+import { getThemeColors } from "@ujjwalvivek/substrate/colors";
+```
+
+## Adding a shader
+
+Add a `*.wgsl` file under `packages/substrate/src/shaders/primitives/`. Each file needs a `/* @substrate { ... } */` metadata block and one or more supported primitive functions.
+
+The renderer discovers the files at package-build time. See the [shader contract](packages/substrate/src/shaders/primitives/README.md).

@@ -30,7 +30,7 @@
         { value: 60, label: "60" },
     ];
     const presetOptions = [
-        { value: "", label: "CUSTOM / ISOLATED" },
+        { value: "", label: "ISOLATED" },
         ...Object.keys(presets).map((name) => ({
             value: name,
             label: name.toUpperCase(),

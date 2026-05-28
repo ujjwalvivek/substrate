@@ -11,7 +11,6 @@ export const presets = {
         { fn: primitives.scanlines, options: { opacity: 0.5 } },
         { fn: primitives.wireframes, options: { density: 1 } },
         { fn: primitives.grid, options: { opacity: 0.4 } },
-        { fn: primitives.glitch, options: { opacity: 0.8 } },
         { fn: primitives.vignette },
     ],
     sacred: [
@@ -45,7 +44,6 @@ export const presets = {
             fn: primitives.grid,
             options: { spacing: 60, opacity: 0.6, warpAmount: 2 },
         },
-        { fn: primitives.glitch, options: { opacity: 0.6, threshold: 0.98 } },
         { fn: primitives.vignette, options: { opacity: 0.8 } },
     ],
     overload: [
@@ -56,7 +54,6 @@ export const presets = {
         { fn: primitives.wireframes, options: { density: 0.5 } },
         { fn: primitives.particles, options: { density: 0.8 } },
         { fn: primitives.streams, options: { density: 0.5 } },
-        { fn: primitives.glitch },
         { fn: primitives.vignette },
     ],
 };
@@ -111,11 +108,6 @@ const COMPOSABLE = [
             density: rand(0.5, 1.5),
             trailLength: Math.floor(rand(4, 10)),
         }),
-    ],
-    [
-        "glitch",
-        1,
-        () => ({ threshold: rand(0.93, 0.99), opacity: rand(0.5, 1) }),
     ],
     [
         "hyperstring",
