@@ -430,7 +430,7 @@
 </script>
 
 <svelte:head>
-    <title>Substrate / WGSL Playground</title>
+    <title>Substrate Playground</title>
 </svelte:head>
 
 <main class="app">
