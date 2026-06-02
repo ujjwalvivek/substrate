@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Substrate</title>
+
+  <rect width="64" height="64" fill="#111016" />
+
+  <path d="M6 18V6h12M46 6h12v12M58 46v12H46M18 58H6V46" fill="none" stroke="#35e8e8" stroke-width="2" />
+  <path d="M12 12h40v40H12z" fill="none" stroke="#38323e" stroke-width="1" />
+  <path d="M20 12v40M32 12v40M44 12v40M12 20h40M12 32h40M12 44h40" fill="none" stroke="#fff" stroke-opacity="0.045" />
+
+  <path
+    d="M46 18H26l-8 8 8 8h14l8 8-8 8H18"
+    fill="none"
+    stroke="#d95cff"
+    stroke-width="5"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+    opacity="0.8"
+  />
+  <path
+    d="M44 16H25l-7 8 7 8h15l7 8-7 8H17"
+    fill="none"
+    stroke="#35e8e8"
+    stroke-width="4"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+  />
+</svg>
