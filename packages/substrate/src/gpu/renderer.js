@@ -187,10 +187,8 @@ struct FeedbackOut {
 }
 
 @fragment fn fs_feedback_present(in:FeedbackOut)->@location(0) vec4<f32> {
-  let dims=vec2<f32>(textureDimensions(feedbackTexture));
-  let uv=in.position.xy/max(dims,vec2<f32>(1.0));
-  let c=textureSample(feedbackTexture,feedbackSampler,uv);
-  return vec4<f32>(c.rgb,clamp(layers.data[in.li].p0.z,0.0,1.0));
+  let p=in.position.xy/g.viewport.z;
+  return primitiveFeedbackPresent(p,layers.data[in.li]);
 }
 `;
 
@@ -573,8 +571,8 @@ export class SubstrateGPU {
         this.feedbackSampler = this.device.createSampler({
             addressModeU: "repeat",
             addressModeV: "repeat",
-            magFilter: "linear",
-            minFilter: "linear",
+            magFilter: "nearest",
+            minFilter: "nearest",
         });
 
         const target = (blend) => [
@@ -742,7 +740,10 @@ export class SubstrateGPU {
             this.cssWidth = width;
             this.cssHeight = height;
             this.dpr = dpr;
-            if (resized) this.#destroyFeedbackResources();
+            if (resized) {
+                this.#destroyFeedbackResources();
+                this.frame = 0;
+            }
             if ((this.options.fps ?? 30) === 0 && this.device) this.render(0);
         };
         resize();
@@ -893,7 +894,7 @@ export class SubstrateGPU {
                 colorAttachments: [
                     {
                         view: resource.views[writeIndex],
-                        clearValue: { r: 0, g: 0, b: 0, a: 1 },
+                        clearValue: { r: 0, g: 0, b: 0, a: 0 },
                         // The shader reads the previous texture, so this target can be cleared.
                         loadOp: "clear",
                         storeOp: "store",

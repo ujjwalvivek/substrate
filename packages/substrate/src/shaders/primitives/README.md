@@ -20,11 +20,16 @@ fn primitiveFull(p: vec2<f32>, l: Layer) -> vec4<f32> {
 }
 ```
 
-Supported modes are `full`, `segment`, and `sprite`. A shader can use more than one mode. The corresponding function names are fixed:
+Supported modes are `full`, `segment`, `sprite`, and `feedback`. A shader can use more than one mode. The corresponding function names are fixed:
 
 - `full` → `primitiveFull(p, l) -> vec4<f32>`
 - `segment` → `primitiveSegment(index, l) -> Segment`
 - `sprite` → `primitiveSprite(index, l) -> SpriteData`
+- `feedback` → `primitiveFeedback(p, l) -> vec4<f32>` and `primitiveFeedbackPresent(p, l) -> vec4<f32>`
+
+Feedback shaders update a persistent RGBA texture before compositing. The
+`primitiveFeedbackPresent` function receives the same texture through the
+shared `feedbackSampler` and `feedbackTexture` bindings.
 
 For segment/sprite shaders, add a `draw` expression in metadata. Draw expressions are JSON arrays evaluated by the renderer and can use `width`, `height`, `speed`, `density`, `opacity`, and declared parameter names. Operators currently supported: `+`, `-`, `*`, `/`, `floor`, `ceil`, `min`, `max`, `clamp`, and `pow2`.
 
