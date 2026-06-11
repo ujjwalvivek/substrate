@@ -56,6 +56,7 @@
     let compare = false;
     let speed = 1;
     let density = 1;
+    let densityMinimum = 0.1;
     let opacity = 0.8;
     let fps = 30;
     let cpuRunning = false;
@@ -126,6 +127,7 @@
     $: recipe = `[ ${recipeLayers
         .map((name) => name.toUpperCase())
         .join(" + ")} ]`;
+    $: densityMinimum = selectedPrimitive === "coastal-landscape" ? 0.9 : 0.1;
 
     function globalOptions() {
         return {
@@ -277,6 +279,9 @@
 
     function handlePrimitiveChange(value) {
         selectedPrimitive = value;
+        if (value === "coastal-landscape" && Number(density) < 0.9) {
+            density = 0.9;
+        }
         isolate(value);
     }
 
@@ -675,7 +680,7 @@
                     id="density"
                     class="ui-range"
                     type="range"
-                    min="0.1"
+                    min={densityMinimum}
                     max="2.25"
                     step="0.01"
                     bind:value={density}
