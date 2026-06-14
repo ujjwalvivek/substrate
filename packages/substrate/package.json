@@ -3,6 +3,14 @@
   "version": "2.0.0",
   "description": "A composable Canvas2D and WebGPU procedural graphics engine with bundled WGSL primitives.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ujjwalvivek/substrate.git"
+  },
+  "homepage": "https://github.com/ujjwalvivek/substrate#readme",
+  "bugs": {
+    "url": "https://github.com/ujjwalvivek/substrate/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "files": [
