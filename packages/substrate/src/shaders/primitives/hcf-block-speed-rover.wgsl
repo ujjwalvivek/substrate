@@ -128,7 +128,7 @@ fn hcfDecodeOffset(encoded: f32) -> vec2<f32> {
 
 fn hcfGetRover(cell: vec2<f32>, grid: vec2<f32>) -> vec4<f32> {
   let wrapped = hcfWrapCell(cell, grid);
-  return textureSample(feedbackTexture, feedbackSampler, (wrapped + vec2<f32>(0.5)) / grid);
+  return textureSampleLevel(feedbackTexture, feedbackSampler, (wrapped + vec2<f32>(0.5)) / grid, 0.0);
 }
 
 fn hcfSameCell(a: vec2<f32>, b: vec2<f32>) -> bool {

@@ -120,7 +120,7 @@ fn grisRot(t: f32) -> mat2x2<f32> {
 fn grisReadState() -> vec4<f32> {
   let dimensions = vec2<f32>(textureDimensions(feedbackTexture));
   let uv = vec2<f32>(0.5) / max(dimensions, vec2<f32>(1.0));
-  return textureSample(feedbackTexture, feedbackSampler, uv);
+  return textureSampleLevel(feedbackTexture, feedbackSampler, uv, 0.0);
 }
 
 fn primitiveFeedback(fragCoord: vec2<f32>, l: Layer) -> vec4<f32> {
