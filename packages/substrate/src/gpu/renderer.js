@@ -490,6 +490,8 @@ export class SubstrateGPU {
         this.nodeLayer = -1;
         this.resizeObserver = null;
         this.pipelines = new Map();
+        this.building = new Map();
+        this.sceneSet = false;
         this.feedbackResources = new Map();
     }
 
@@ -575,86 +577,6 @@ export class SubstrateGPU {
             minFilter: "nearest",
         });
 
-        const target = (blend) => [
-            { format: this.format, blend, writeMask: GPUColorWrite.ALL },
-        ];
-        for (const descriptor of shaderList) {
-            const module = await checkedModule(
-                this.device,
-                entrySource(descriptor),
-                `Substrate / ${descriptor.name}.wgsl`,
-            );
-            const pipelines = {};
-            if (descriptor.modes.includes("full")) {
-                pipelines.full = this.device.createRenderPipeline({
-                    layout: this.renderPL,
-                    vertex: { module, entryPoint: "vs_full" },
-                    fragment: {
-                        module,
-                        entryPoint: "fs_full",
-                        targets: target(
-                            descriptor.blend === "screen"
-                                ? screenBlend
-                                : sourceOver,
-                        ),
-                    },
-                    primitive: { topology: "triangle-list" },
-                });
-            }
-            if (descriptor.modes.includes("segment")) {
-                pipelines.segment = this.device.createRenderPipeline({
-                    layout: this.renderPL,
-                    vertex: { module, entryPoint: "vs_segment" },
-                    fragment: {
-                        module,
-                        entryPoint: "fs_segment",
-                        targets: target(sourceOver),
-                    },
-                    primitive: { topology: "triangle-list" },
-                });
-            }
-            if (descriptor.modes.includes("sprite")) {
-                pipelines.sprite = this.device.createRenderPipeline({
-                    layout: this.renderPL,
-                    vertex: { module, entryPoint: "vs_sprite" },
-                    fragment: {
-                        module,
-                        entryPoint: "fs_sprite",
-                        targets: target(sourceOver),
-                    },
-                    primitive: { topology: "triangle-list" },
-                });
-            }
-            if (descriptor.modes.includes("feedback")) {
-                const feedbackFormat =
-                    descriptor.feedback?.format || "rgba16float";
-                pipelines.feedback = this.device.createRenderPipeline({
-                    layout: this.feedbackPL,
-                    vertex: { module, entryPoint: "vs_feedback" },
-                    fragment: {
-                        module,
-                        entryPoint: "fs_feedback",
-                        targets: [{ format: feedbackFormat }],
-                    },
-                    primitive: { topology: "triangle-list" },
-                });
-                pipelines.feedbackPresent = this.device.createRenderPipeline({
-                    layout: this.feedbackPL,
-                    vertex: { module, entryPoint: "vs_feedback" },
-                    fragment: {
-                        module,
-                        entryPoint: "fs_feedback_present",
-                        targets: target(
-                            descriptor.blend === "screen"
-                                ? screenBlend
-                                : sourceOver,
-                        ),
-                    },
-                    primitive: { topology: "triangle-list" },
-                });
-            }
-            this.pipelines.set(descriptor.name, pipelines);
-        }
 
         const computeModule = await checkedModule(
             this.device,
@@ -680,7 +602,7 @@ export class SubstrateGPU {
                 },
             ],
         });
-        this.computePipeline = this.device.createComputePipeline({
+        this.computePipeline = await this.device.createComputePipelineAsync({
             layout: this.device.createPipelineLayout({
                 bindGroupLayouts: [this.computeBGL],
             }),
@@ -699,12 +621,124 @@ export class SubstrateGPU {
         return this;
     }
 
+    // Pipelines are built only for the shaders a scene names, in parallel and off the main thread (the *Async variants),
+    // instead of compiling the whole shader library up front. render() skips a layer until its pipelines exist.
+    ensurePipelines(names) {
+        if (!this.device) return Promise.resolve();
+        const jobs = [];
+        for (const name of new Set(names)) {
+            if (this.pipelines.has(name)) continue;
+            let job = this.building.get(name);
+            if (!job) {
+                const descriptor = shaderMap.get(name);
+                if (!descriptor) continue;
+                job = this.#buildPipelines(descriptor)
+                    .then((built) => {
+                        this.pipelines.set(name, built);
+                    })
+                    .finally(() => this.building.delete(name));
+                this.building.set(name, job);
+            }
+            jobs.push(job);
+        }
+        return Promise.all(jobs).then(() => {
+            if ((this.options.fps ?? 30) === 0 && this.device && this.cssWidth)
+                this.render(0);
+        });
+    }
+
+    async #buildPipelines(descriptor) {
+        const module = await checkedModule(
+            this.device,
+            entrySource(descriptor),
+            `Substrate / ${descriptor.name}.wgsl`,
+        );
+        const target = (blend) => [
+            { format: this.format, blend, writeMask: GPUColorWrite.ALL },
+        ];
+        const blend =
+            descriptor.blend === "screen" ? screenBlend : sourceOver;
+        const pipelines = {};
+        const jobs = [];
+        const make = (key, descriptorBody) =>
+            jobs.push(
+                this.device
+                    .createRenderPipelineAsync(descriptorBody)
+                    .then((pipeline) => {
+                        pipelines[key] = pipeline;
+                    }),
+            );
+        if (descriptor.modes.includes("full")) {
+            make("full", {
+                layout: this.renderPL,
+                vertex: { module, entryPoint: "vs_full" },
+                fragment: {
+                    module,
+                    entryPoint: "fs_full",
+                    targets: target(blend),
+                },
+                primitive: { topology: "triangle-list" },
+            });
+        }
+        if (descriptor.modes.includes("segment")) {
+            make("segment", {
+                layout: this.renderPL,
+                vertex: { module, entryPoint: "vs_segment" },
+                fragment: {
+                    module,
+                    entryPoint: "fs_segment",
+                    targets: target(sourceOver),
+                },
+                primitive: { topology: "triangle-list" },
+            });
+        }
+        if (descriptor.modes.includes("sprite")) {
+            make("sprite", {
+                layout: this.renderPL,
+                vertex: { module, entryPoint: "vs_sprite" },
+                fragment: {
+                    module,
+                    entryPoint: "fs_sprite",
+                    targets: target(sourceOver),
+                },
+                primitive: { topology: "triangle-list" },
+            });
+        }
+        if (descriptor.modes.includes("feedback")) {
+            const feedbackFormat = descriptor.feedback?.format || "rgba16float";
+            make("feedback", {
+                layout: this.feedbackPL,
+                vertex: { module, entryPoint: "vs_feedback" },
+                fragment: {
+                    module,
+                    entryPoint: "fs_feedback",
+                    targets: [{ format: feedbackFormat }],
+                },
+                primitive: { topology: "triangle-list" },
+            });
+            make("feedbackPresent", {
+                layout: this.feedbackPL,
+                vertex: { module, entryPoint: "vs_feedback" },
+                fragment: {
+                    module,
+                    entryPoint: "fs_feedback_present",
+                    targets: target(blend),
+                },
+                primitive: { topology: "triangle-list" },
+            });
+        }
+        await Promise.all(jobs);
+        return pipelines;
+    }
+
     setScene(scene) {
         this.#destroyFeedbackResources();
         this.scene = scene?.__substrateGpuScene ? scene : compose(scene);
+        this.sceneSet = true;
         this.#syncNodes(true);
         if ((this.options.fps ?? 30) === 0 && this.device && this.cssWidth)
             this.render(0);
+        return this.ensurePipelines(this.scene.layers.map((layer) => layer.name));
     }
 
     setPalette(palette) {
@@ -976,6 +1010,8 @@ export class SubstrateGPU {
 
     start() {
         this.stop();
+        if (!this.sceneSet)
+            this.ensurePipelines(this.scene.layers.map((layer) => layer.name));
         this.stopped = false;
         this.last = 0;
         const tick = (timestamp) => {
@@ -1016,7 +1052,7 @@ export async function loop(
     stop();
     activeRenderer = new SubstrateGPU(canvas);
     await activeRenderer.init();
-    activeRenderer.setScene(scene);
+    await activeRenderer.setScene(scene);
     activeRenderer.setPalette(palette);
     activeRenderer.setOptions(globalOptions);
     activeRenderer.start();
@@ -1036,7 +1072,7 @@ export async function renderStatic(
 ) {
     const renderer = new SubstrateGPU(canvas);
     await renderer.init();
-    renderer.setScene(scene);
+    await renderer.setScene(scene);
     renderer.setPalette(palette);
     renderer.setOptions({ ...globalOptions, fps: 0 });
     renderer.render(0);
