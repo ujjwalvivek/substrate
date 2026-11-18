@@ -369,6 +369,76 @@
         }
     }
 
+    const RECIPE_LAYER_LIMIT = 8;
+    const round = (value) => Math.round(value * 10000) / 10000;
+
+    // Recipe v1 has no global options, so the sliders are baked into each layer with effectiveLayerOptions. A consumer
+    // that renders the recipe at the default globals (speed 1, density 1, opacity 0.8) sees what the playground shows.
+    function recipeFromScene() {
+        const globals = globalOptions();
+        const layers = [];
+        for (const layer of currentLayers) {
+            const name = layer.fn?.primitiveName;
+            const descriptor = shaderDescriptors.find((d) => d.name === name);
+            if (!descriptor) continue;
+            const effective = effectiveLayerOptions(
+                name,
+                layer.options || {},
+                globals,
+            );
+            const params = {};
+            for (const spec of descriptor.params) {
+                const value = effective[spec.key];
+                params[spec.key] =
+                    typeof value === "number" ? round(value) : value;
+            }
+            layers.push({
+                name,
+                opacity: round(effective.opacity),
+                speed: round(effective.speed),
+                density: round(effective.density),
+                params,
+            });
+        }
+        return {
+            recipe: 1,
+            name: selectedPreset || selectedPrimitive || "playground",
+            layers,
+        };
+    }
+
+    async function writeClipboard(text) {
+        if (navigator.clipboard?.writeText && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+        // Plain http (a LAN or tailnet host) has no async clipboard API.
+        const area = document.createElement("textarea");
+        area.value = text;
+        area.setAttribute("readonly", "");
+        area.style.position = "fixed";
+        area.style.opacity = "0";
+        document.body.appendChild(area);
+        area.select();
+        const copied = document.execCommand("copy");
+        area.remove();
+        if (!copied) throw new Error("CLIPBOARD UNAVAILABLE");
+    }
+
+    async function copyRecipe() {
+        const recipe = recipeFromScene();
+        try {
+            await writeClipboard(JSON.stringify(recipe, null, 2));
+            showCaptureStatus(
+                recipe.layers.length > RECIPE_LAYER_LIMIT
+                    ? `COPIED, BUT ${recipe.layers.length} LAYERS IS OVER THE LIMIT OF ${RECIPE_LAYER_LIMIT}`
+                    : "RECIPE COPIED AS JSON",
+            );
+        } catch (error) {
+            showCaptureStatus(error?.message || String(error));
+        }
+    }
+
     async function captureGif() {
         if (gifRecording) return;
         gifRecording = true;
@@ -567,15 +637,24 @@
                                     : "EXPORT GIF"}
                             </button>
                         </div>
-                        <button
-                            class="action-btn generate-btn"
-                            type="button"
-                            onclick={generate}
-                        >
-                            {generatedCount
-                                ? `GENERATED: ${generatedCount}`
-                                : "GENERATE RECIPE"}
-                        </button>
+                        <div class="capture-actions recipe-actions">
+                            <button
+                                class="action-btn"
+                                type="button"
+                                onclick={generate}
+                            >
+                                {generatedCount
+                                    ? `GENERATED: ${generatedCount}`
+                                    : "GENERATE RECIPE"}
+                            </button>
+                            <button
+                                class="action-btn"
+                                type="button"
+                                onclick={copyRecipe}
+                            >
+                                COPY RECIPE
+                            </button>
+                        </div>
                         {#if captureStatus}
                             <div class="capture-status" aria-live="polite">
                                 {captureStatus}
