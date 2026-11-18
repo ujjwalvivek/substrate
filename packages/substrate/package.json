@@ -25,6 +25,7 @@
     "./colors": "./dist/colors.js",
     "./theme": "./dist/theme.js",
     "./core": "./dist/core.js",
+    "./recipes": "./dist/recipes.js",
     "./package.json": "./package.json"
   },
   "scripts": {

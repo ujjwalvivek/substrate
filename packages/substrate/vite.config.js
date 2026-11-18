@@ -13,6 +13,7 @@ export default defineConfig({
         colors: resolve(packageRoot, "src/engine/colors.js"),
         theme: resolve(packageRoot, "src/engine/theme.js"),
         core: resolve(packageRoot, "src/engine/core.js"),
+        recipes: resolve(packageRoot, "src/engine/recipes.js"),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,
