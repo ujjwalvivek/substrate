@@ -57,7 +57,7 @@ const root = {
     ],
 };
 
-// CANDIDATE, not yet reviewed on screen; may be rejected.
+// Reviewed on screen and kept (2026-11-19).
 // nebula: soft and deep. A pixel starfield base, slow nebula clouds washed over it so the stars show through, large
 // dim glows for depth, a few slow streams for motion, and a wide vignette.
 const nebula = {
@@ -102,58 +102,6 @@ const nebula = {
     ],
 };
 
-// CANDIDATE, not yet reviewed on screen; may be rejected.
-// signal: structured and technical. A dark laser grid base, a faint voronoi mosaic and scanlines for texture, a
-// drifting node network for motion, the sys$horizon panes washed in at low opacity for depth, and a vignette.
-const signal = {
-    recipe: 1,
-    name: "signal",
-    layers: [
-        {
-            name: "laser-grid",
-            opacity: 1,
-            speed: 0.2,
-            density: 0.6,
-            params: { spacing: 140, lineWidth: 0.01, warpAmount: 3, color: "secondary" },
-        },
-        {
-            name: "voronoi-perlin",
-            opacity: 0.12,
-            speed: 0.05,
-            density: 0.6,
-            params: { voronoiScale: 24, perlinScale: 5, noiseSpeed: 0.2, contrast: 0.6 },
-        },
-        {
-            name: "scanlines",
-            opacity: 0.5,
-            speed: 1,
-            density: 1,
-            params: { spacing: 3, maxAlpha: 0.06, color: "primary" },
-        },
-        {
-            name: "nodes",
-            opacity: 0.5,
-            speed: 0.3,
-            density: 0.6,
-            params: { maxDist: 0.12, nodeSize: 1.5, curveAmount: 20 },
-        },
-        {
-            name: "sys-horizon",
-            opacity: 0.18,
-            speed: 0.3,
-            density: 1,
-            params: { horizon: 0.1, skyFade: 0.4, paneDepth: 0.05, reflectionStrength: 0.25 },
-        },
-        {
-            name: "vignette",
-            opacity: 1,
-            speed: 0,
-            density: 0,
-            params: { innerRadius: 0.15, outerRadius: 0.85 },
-        },
-    ],
-};
-
 function deepFreeze(value) {
     if (value && typeof value === "object") {
         Object.values(value).forEach(deepFreeze);
@@ -162,7 +110,7 @@ function deepFreeze(value) {
     return value;
 }
 
-export const recipes = deepFreeze({ root, nebula, signal });
+export const recipes = deepFreeze({ root, nebula });
 export const recipeNames = Object.freeze(Object.keys(recipes));
 
 // A fresh, mutable copy of the named recipe, or undefined if there is none.

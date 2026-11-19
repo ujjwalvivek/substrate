@@ -49,7 +49,7 @@ Each layer names a GPU primitive. Opacity, speed and density become the layer's 
 
 validateRecipe(recipe) returns { ok, errors }. It rejects an unknown recipe version, layers that are not an array, more than 8 layers, unknown primitive names, params a primitive does not declare, unknown keys, and numbers that are not finite. parseRecipe(text) does the same for pasted text, which is read with JSON.parse and never run as code. recipeToScene(recipe) validates first and throws with every message if the recipe is invalid.
 
-The recipes entry ships root, the stack used on ujjwalvivek.com, and two candidates, nebula and signal. getRecipe(name) returns a fresh copy you can change. The playground's COPY RECIPE button copies the current stack as a version 1 recipe, with the global sliders baked into each layer.
+The recipes entry ships two recipes: root, the stack used on ujjwalvivek.com, and nebula. getRecipe(name) returns a fresh copy you can change. The playground's COPY RECIPE button copies the current stack as a version 1 recipe, with the global sliders baked into each layer.
 
 ## CPU reference API
 

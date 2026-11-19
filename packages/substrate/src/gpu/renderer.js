@@ -427,7 +427,14 @@ function nodeInfo(scene, globalOptions) {
 async function checkedModule(device, code, label) {
     const module = device.createShaderModule({ code, label });
     if (module.getCompilationInfo) {
-        const info = await module.getCompilationInfo();
+        // The compile report is a nicety: if asking for it fails (Chromium can drop the instance behind it), carry on and
+        // let pipeline creation report real shader errors.
+        let info;
+        try {
+            info = await module.getCompilationInfo();
+        } catch {
+            return module;
+        }
         const errors = info.messages.filter(
             (message) => message.type === "error",
         );
@@ -500,6 +507,9 @@ export class SubstrateGPU {
             throw new Error("WebGPU is not available in this browser.");
         const adapter = await navigator.gpu.requestAdapter();
         if (!adapter) throw new Error("No WebGPU adapter is available.");
+        // Kept for the renderer's lifetime: if the adapter is collected, Chromium can drop its instance and later async
+        // calls (getCompilationInfo on a new scene's shaders) fail with "Instance dropped".
+        this.adapter = adapter;
         this.device = await adapter.requestDevice();
         this.context = this.canvas.getContext("webgpu");
         this.format = navigator.gpu.getPreferredCanvasFormat();
