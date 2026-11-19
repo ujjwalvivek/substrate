@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ujjwalvivek/substrate": "2.0.1",
+    "@ujjwalvivek/substrate": "2.1.0",
     "gifenc": "^1.0.3"
   },
   "devDependencies": {
